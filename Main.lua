@@ -2,7 +2,7 @@ local HttpService = game:GetService('HttpService')
 local Supported = false
 local Script = nil
 
-local GameList = game:HttpGet('https://raw.githubusercontent.com/Voxel0/ZincHub/main/GameList.json')
+local GameList = game:HttpGet('https://raw.githubusercontent.com/Voxel0/ZincHub/master/GameList.json')
 function GetGame()
     local GameTable = HttpService:JSONDecode(GameList)
     if GameTable[tostring(game.PlaceId)] then 
@@ -15,7 +15,7 @@ local Game = GetGame()
 
 if Game then
     Supported = true
-    Script = game:HttpGet('https://raw.githubusercontent.com/Voxel0/ZincHub/main/Scripts/' .. Game.ScriptName)
+    Script = game:HttpGet('https://raw.githubusercontent.com/Voxel0/ZincHub/master/Scripts/' .. Game.ScriptName)
 end
 
 local DuckHub = Instance.new("ScreenGui")
