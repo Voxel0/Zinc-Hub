@@ -109,7 +109,7 @@ DuckLogo.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
 DuckLogo.BackgroundTransparency = 1.000
 DuckLogo.Position = UDim2.new(0.359375, 0, 0.0249999985, 0)
 DuckLogo.Size = UDim2.new(0, 90, 0, 90)
-DuckLogo.Image = "rbxassetid://5552873993"
+DuckLogo.Image = "rbxassetid://6942457865"
 
 DuckText.Name = "DuckText"
 DuckText.Parent = DuckLogo
@@ -118,7 +118,7 @@ DuckText.BackgroundTransparency = 1.000
 DuckText.Position = UDim2.new(0.0274305344, 0, 0.99444443, 0)
 DuckText.Size = UDim2.new(0, 48, 0, 30)
 DuckText.Font = Enum.Font.Gotham
-DuckText.Text = "Duck"
+DuckText.Text = "Zinc"
 DuckText.TextColor3 = Color3.fromRGB(255, 255, 255)
 DuckText.TextSize = 20.000
 
