@@ -4,7 +4,11 @@
         "GameName": "🌳 Lumber Tycoon 2"
     },
     "292439477": {
-        "ScriptName": "PhantomForces.lua",
-        "GameName": "PhantomForces"
+        "ScriptName": "Phantom Forces.lua",
+        "GameName": "Phantom Forces"
+    },
+    "286090429": {
+        "ScriptName": "Arsenal.lua",
+        "GameName": "Arsenal"
     }
 }
