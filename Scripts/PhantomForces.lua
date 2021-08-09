@@ -48,40 +48,76 @@ MT.__index = newcclosure(function(self, K)
     return __index(self, K)
 end)
 setreadonly(MT, true)
-local function ClosestPlayer()
-local closestPlayer=nil
-local shortestDistance=math.huge
-for _,a in pairs(game.Workspace.Players:GetChildren())do
-if a.Name~=game.Players.LocalPlayer.Team.Name then
-for _,b in pairs(a:GetChildren())do
-if(b.Head.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude<shortestDistance then
-closestPlayer=b
-shortestDistance=(b.Head.Position-game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude
+
+local Players = game:GetService("Players")
+local ReplicatedFirst = game:GetService("ReplicatedFirst")
+local RunService = game:GetService("RunService")
+
+local LocalPlayer = Players.LocalPlayer
+
+local ClientModules = ReplicatedFirst.ClientModules
+
+local Old = ClientModules.Old
+
+local framework = Old.framework
+
+local network = require(framework.network)
+
+local Table = coroutine.wrap(function(...)
+	for _, Value in ipairs(getgc(true)) do
+		if typeof(Value) == "table" and rawget(Value, "gammo") then
+			return Value
+		end
+	end
+end)()
+
+local getbodyparts = coroutine.wrap(function(...)
+	for _, Value in ipairs(getgc(false)) do
+		if debug.getinfo(Value).name == "getbodyparts" then
+			return Value
+		end
+	end
+end)()
+
+local GetClosestEnemyPlayer = function(Range, ...)
+	local Player = nil
+	for _, Value in ipairs(Players:GetPlayers()) do
+		if Value ~= LocalPlayer and Value.Team ~= LocalPlayer.Team and LocalPlayer.Character then
+			local BodyParts = getbodyparts(Value)
+			if BodyParts then
+				local Magnitude = math.floor((BodyParts.head.Position - LocalPlayer.Character.Head.Position).Magnitude)
+				if Magnitude <= Range then
+					Player = Value
+					Range = Magnitude
+				end
+			end
+		end
+	end
+	return Player
 end
-end
-end
-end
-return closestPlayer
-end
-local b=Vector3.new()
-game.RunService.RenderStepped:Connect(function()
-b=ClosestPlayer().HumanoidRootPart.Position
+
+local KnifeEquipped = false
+local GunEquipped = false
+local Old = 0
+local Range = 25
+
+RunService.RenderStepped:Connect(function(...)
+	if Table.currentgun then
+		local ClosestEnemyPlayer = GetClosestEnemyPlayer(Range)
+		if ClosestEnemyPlayer then
+			if not KnifeEquipped and Table.currentgun.type ~= "KNIFE" then
+				KnifeEquipped = true
+				GunEquipped = false
+				Old = Table.currentgun.gunnumber
+				network:send("equip", 3)
+			end
+			network:send("knifehit", ClosestEnemyPlayer, tick(), getbodyparts(ClosestEnemyPlayer).head)
+		else
+			if not GunEquipped and Old ~= 0 then
+				GunEquipped = true
+				KnifeEquipped = false
+				network:send("equip", Old)
+			end
+		end
+	end
 end)
-local mt=getrawmetatable(game)
-local oldNamecall=mt.__namecall
-local oldIndex=mt.__index
-setreadonly(mt,false)
-mt.__namecall=newcclosure(function(...)
-local method=getnamecallmethod()
-local args={...}
-if tostring(method)=="FireServer"and args[2]=="newgrenade"then
-for i=1,#args[4]["frames"]do
-if i~=1 then
-args[4]["frames"][i]["p0"]=b
-end
-end
-args[4]["blowuptime"]=0
-end
-return oldNamecall(unpack(args))
-end)
-setreadonly(mt,true)
