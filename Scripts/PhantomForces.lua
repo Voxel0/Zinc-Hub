@@ -48,12 +48,7 @@ MT.__index = newcclosure(function(self, K)
     return __index(self, K)
 end)
 setreadonly(MT, true)
-
-local Players = game:GetService("Players")
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
-local RunService = game:GetService("RunService")
-
-local LocalPlayer = Players.LocalPlayer
 
 local ClientModules = ReplicatedFirst.ClientModules
 
@@ -63,61 +58,11 @@ local framework = Old.framework
 
 local network = require(framework.network)
 
-local Table = coroutine.wrap(function(...)
-	for _, Value in ipairs(getgc(true)) do
-		if typeof(Value) == "table" and rawget(Value, "gammo") then
-			return Value
-		end
-	end
-end)()
-
-local getbodyparts = coroutine.wrap(function(...)
-	for _, Value in ipairs(getgc(false)) do
-		if debug.getinfo(Value).name == "getbodyparts" then
-			return Value
-		end
-	end
-end)()
-
-local GetClosestEnemyPlayer = function(Range, ...)
-	local Player = nil
-	for _, Value in ipairs(Players:GetPlayers()) do
-		if Value ~= LocalPlayer and Value.Team ~= LocalPlayer.Team and LocalPlayer.Character then
-			local BodyParts = getbodyparts(Value)
-			if BodyParts then
-				local Magnitude = math.floor((BodyParts.head.Position - LocalPlayer.Character.Head.Position).Magnitude)
-				if Magnitude <= Range then
-					Player = Value
-					Range = Magnitude
-				end
-			end
-		end
-	end
-	return Player
+local Old = network.send
+network.send = function(Self, Name, ...)
+    local Arguments = {...}
+    if Name == "falldamage" then
+        return
+    end
+    return Old(Self, Name, unpack(Arguments))
 end
-
-local KnifeEquipped = false
-local GunEquipped = false
-local Old = 0
-local Range = 25
-
-RunService.RenderStepped:Connect(function(...)
-	if Table.currentgun then
-		local ClosestEnemyPlayer = GetClosestEnemyPlayer(Range)
-		if ClosestEnemyPlayer then
-			if not KnifeEquipped and Table.currentgun.type ~= "KNIFE" then
-				KnifeEquipped = true
-				GunEquipped = false
-				Old = Table.currentgun.gunnumber
-				network:send("equip", 3)
-			end
-			network:send("knifehit", ClosestEnemyPlayer, tick(), getbodyparts(ClosestEnemyPlayer).head)
-		else
-			if not GunEquipped and Old ~= 0 then
-				GunEquipped = true
-				KnifeEquipped = false
-				network:send("equip", Old)
-			end
-		end
-	end
-end)
