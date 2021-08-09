@@ -34,36 +34,3 @@ local function Closest()
     end
     return Close
 end
-local MT = getrawmetatable(game)
-local __index = MT.__index
-setreadonly(MT, false)
-MT.__index = newcclosure(function(self, K)
-    if not checkcaller() and GameLogic.currentgun and GameLogic.currentgun.data and (self == GameLogic.currentgun.barrel or tostring(self) == "SightMark") and K == "CFrame" then
-        local CharChosen = (CharTable[Closest()] and CharTable[Closest()].head)
-        if CharChosen then
-            local _, Time = Trajectory(self.Position, Vector3.new(0, -workspace.Gravity, 0), CharChosen.Position, GameLogic.currentgun.data.bulletspeed)
-            return CFrame.new(self.Position, CharChosen.Position + (Vector3.new(0, -workspace.Gravity / 2, 0)) * (Time ^ 2) + (CharChosen.Velocity * Time))
-        end
-    end
-    return __index(self, K)
-end)
-setreadonly(MT, true)
-
-local ReplicatedFirst = game:GetService("ReplicatedFirst")
-
-local ClientModules = ReplicatedFirst.ClientModules
-
-local Old = ClientModules.Old
-
-local framework = Old.framework
-
-local network = require(framework.network)
-
-local Old = network.send
-network.send = function(Self, Name, ...)
-    local Arguments = {...}
-    if Name == "falldamage" then
-        return
-    end
-    return Old(Self, Name, unpack(Arguments))
-end
