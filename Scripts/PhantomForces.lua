@@ -47,7 +47,8 @@ MT.__index = newcclosure(function(self, K)
     end
     return __index(self, K)
 end)
-setreadonly(MT, true)
+
+
 local ReplicatedFirst = game:GetService("ReplicatedFirst")
 
 local ClientModules = ReplicatedFirst.ClientModules
